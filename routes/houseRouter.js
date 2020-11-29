@@ -1,48 +1,106 @@
 const express = require('express');
+const House = require('../models/house');
+
 const houseRouter = express.Router();
 
 houseRouter.route('/')
-
-.all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
+.get((req, res, next) => {
+    House.find()
+    .then(houses => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(houses);
+    })
+    .catch(err => next(err));
 })
-.get((req, res) => {
-    res.end('Will send all the houses to you');
-})
-.post((req, res) => {
-    res.end(`Will add the house: ${req.body.name} with description: ${req.body.description}`);
+.post((req, res, next) => {
+    House.create(req.body)
+    .then(house => {
+        console.log('House Created ', house);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(house);
+    })
+    .catch(err => next(err));
 })
 .put((req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /houses');
 })
-.delete((req, res) => {
-    res.end('Deleting all houses');
+.delete((req, res, next) => {
+    House.deleteMany()
+    .then(response => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    })
+    .catch(err => next(err));
 });
 
 houseRouter.route('/:houseId')
-
-.all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
-})
-.get((req, res) => {
-    res.end(`Will send details of the house: ${req.params.houseId} to you`);
+.get((req, res, next) => {
+    House.findById(req.params.houseId)
+    .then(house => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(house);
+    })
+    .catch(err => next(err));
 })
 .post((req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /houses/${req.params.houseId}`);
 })
-.put((req, res) => {
-    res.write(`Updating the house: ${req.params.houseId}\n`);
-    res.end(`Will update the house: ${req.body.name} with description: ${req.body.description}`);
+.put((req, res, next) => {
+    House.findByIdAndUpdate(req.params.houseId, {
+        $set: req.body
+    }, { new: true })
+    .then(house => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json')
+        res.json(house);
+    })
+    .catch(err => next(err));
 })
-.delete((req, res) => {
-    res.end(`Deleting house: ${req.params.houseId}`);
+.delete((req, res, next) => {
+    House.findByIdAndDelete(req.params.houseId)
+    .then(response => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    })
+    .catch(err=> next(err))
 });
 
+{ /*
+houseRouter.route('/:houseId/appliances')
+.get((req, res, next) => {
+    House.findById(req.params.houseId)
+    .then(house => {
+        if (house) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(house.appliances);
+        } else {
+            err = new Error(`House ${req.params.houseId} not found!!!`);
+            err.status = 404;
+            return next(err)
+        }
+    })
+    .catch(err => next(err));
+})
+.post((req, res, next) => {
+    House.findById(req.params.houseId)
+    .then(house => {
+        if (house) {
+            house.appliances.push()
+        }
+    })
+})
 
+houseRouter.route('/:houseId/maintenanceorders')
+
+houseRouter.route('/:houseId/maintenanceorders/maintenanceorderId')
+
+*/}
 module.exports = houseRouter;

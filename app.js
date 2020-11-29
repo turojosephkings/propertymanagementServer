@@ -12,6 +12,20 @@ const paymentorderRouter = require('./routes/paymentorderRouter');
 const tenantRouter = require('./routes/tenantRouter');
 const workorderRouter = require('./routes/houseRouter');
 
+const mongoose = require('mongoose');
+
+const url = 'mongodb://localhost:27017/propertymanagement';
+const connect = mongoose.connect(url, {
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+connect.then(() => console.log('Connected correctly to the Property Management App Server'),
+  err => console.log(err)
+);
+
 const app = express();
 
 // view engine setup
