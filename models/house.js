@@ -81,7 +81,10 @@ const maintenanceordersSchema = new Schema({
     },
     provider: {
         type: String
-    }
+    },
+    closingnotes: {
+        type: String
+    },
 }, {
     timestamps: true
 });
